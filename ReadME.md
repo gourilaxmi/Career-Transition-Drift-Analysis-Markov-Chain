@@ -211,6 +211,7 @@ This helped identify:
 ### 10. Top Sectors per Career Cluster
 
 <img src="results/figures/cluster_sector_breakdown.png" width="850"/>
+
 ### 11. Accuracy Comparison
 
 <img src="results/figures/accuracy_comparison.png" width="850"/>
