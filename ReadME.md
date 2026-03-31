@@ -219,8 +219,8 @@ This helped identify:
 ### 1. Clone the Repository
 
 ```bash id="eyydxv"
-git clone <repo-link>
-cd <repo-folder>
+git clone https://github.com/gourilaxmi/Career-Transition-Drift-Analysis-Markov-Chain.git
+cd Career-Transition-Drift-Analysis-Markov-Chain
 ```
 
 ### 2. Install Required R Packages
