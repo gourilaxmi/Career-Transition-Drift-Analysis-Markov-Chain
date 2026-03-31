@@ -1,0 +1,367 @@
+> source("C:/Users/HP/OneDrive/Desktop/SEM 6/DM/Project/career_markov/career_pred12.R")
+
+== 1. LOAD DATA ==
+
+
+>>> Reading parquet files ...
+    Done in 2.9 sec
+
+  Rows    : 1,677,701
+  Columns : 7
+  Columns : person_id, matched_label, matched_description, matched_code, start_date, end_date, university_studies
+   person_id             matched_label
+       <int>                    <char>
+1:         0          resource manager
+2:         0 health and safety officer
+3:         0      integration engineer
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               matched_description
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <char>
+1:                                                                                                                                                                                                                                                                                                                                                                                                          Resource managers manage resources for all potential and assigned projects. They liaise with the different departments to see that all various resources needs are met, in a timely manner, and communicate any resourcing issues that may impact scheduled deadlines.
+2: Health and safety officers execute plans for the improvement of work environments and cultures. They assess risks and interview employees to ensure the work environment is compliant with health and safety rules, as well as ensuring the interaction within the workplace occurs in a positive and productive manner. If employed in a healthcare facility the health and safety officer has to investigate infections spreading across a facility and advice all employees how to combat and prevent infections. Furthermore health physics is applied at facilities where people are exposed to ionizing radiation such as nuclear power plants and research institutions.
+3:                                                                                                                                                                                                                                                   Integration engineers develop and implement solutions which coordinate applications across the enterprise or its units and departments. They evaluate existing components or systems to determine integration requirements and ensure that the final solutions meet organisational needs. They reuse components when possible and assist management in taking decisions. They perform ICT system integration troubleshooting.
+   matched_code start_date end_date university_studies
+         <char>     <char>   <char>             <lgcl>
+1:     1324.8.3    Q1 2016  Q2 2019               TRUE
+2:       2263.3    Q1 2017  Q2 2019               TRUE
+3:      2511.17    Q1 2013  Q1 2016               TRUE
+
+== 2. DATA CLEANING ==
+
+
+>>> Removing unknown labels ...
+    Dropped (unknown): 271,837
+    Done in 1.5 sec
+
+>>> Removing blank/NA labels ...
+    Dropped (blank)  : 0
+    Done in 0.9 sec
+
+>>> Removing duplicates per user per year ...
+    Dropped (dupes)  : 47,285
+    Done in 0.2 sec
+
+>>> Extracting year from start_date ...
+    Dropped (year)   : 165,354
+    Done in 0.7 sec
+
+  Clean rows : 1,193,225 | Users : 314,875 | Jobs : 2,959 | Years : 1955-2024
+
+== 3. SECTOR MAPPING ==
+
+
+>>> Pass 1 - job title ...
+    'Other' after pass 1: 73.7%
+    Done in 244.0 sec
+
+>>> Pass 2 - description fallback ...
+    Rows to reclassify: 879,498
+    Rescued: 102,137 | 'Other' remaining: 65.1%
+    Done in 2144.9 sec
+
+>>> Pass 2b - broad rescue ...
+    Rows to rescue: 777,361
+    Rescued: 711,709 | 'Other' after 2b: 5.5%
+    Done in 351.5 sec
+
+>>> Pass 3 - remove Other ...
+    Removed: 65,652 (5.5%) | Kept: 1,127,573
+    Done in 0.2 sec
+
+  Sector distribution:
+                             esco_sector      N   pct
+                                  <char>  <int> <num>
+ 1:      Operations & General Management 345463  30.6
+ 2:         Retail, Hospitality & Events 123881  11.0
+ 3:                 Education - Teaching 110458   9.8
+ 4:          Engineering & Manufacturing 109085   9.7
+ 5:             Supply Chain & Logistics  87027   7.7
+ 6:        Healthcare - Nursing & Allied  48341   4.3
+ 7:       Public Sector & Administration  33208   2.9
+ 8:        Human Resources & Recruitment  28689   2.5
+ 9:          Construction & Architecture  28313   2.5
+10:         Sales & Business Development  27383   2.4
+11:                 Finance & Accounting  24151   2.1
+12:             Creative, Media & Design  22816   2.0
+13:           Marketing & Communications  18818   1.7
+14: Environment, Safety & Sustainability  18496   1.6
+15:       Project & Programme Management  18342   1.6
+16:           Customer Service & Support  13692   1.2
+17:            Software & IT Development  11976   1.1
+18:         Banking, Finance & Insurance  10100   0.9
+19:          ICT Management & Consulting   9083   0.8
+20:     Social Work & Community Services   8130   0.7
+21:                Healthcare - Clinical   7073   0.6
+22:           Cybersecurity & Compliance   5676   0.5
+23:                  Research & Academia   5614   0.5
+24:                   Legal & Compliance   5354   0.5
+25:         IT Infrastructure & Networks   3669   0.3
+26:             Data Science & Analytics   2143   0.2
+27:          Senior Management & C-Suite    592   0.1
+                             esco_sector      N   pct
+                                  <char>  <int> <num>
+
+  Users>=2 jobs: 255,485 | Median seq: 3.0 | Total transitions: 816,757
+  Saved: output/sequence_length_distribution.png
+  Sectors: 27 | Unique pairs: 725 | Sparsity: 0.55%
+
+>>> University flag (majority vote)...
+Processed 310816 groups out of 310816. 100% done. Time elapsed: 4s. ETA: 0s.
+    Uni: 42.6% | No uni: 57.4%
+
+== 4. PCA ==
+
+
+>>> Building transition count matrix for PCA ...
+    Done in 0.0 sec
+
+>>> Running PCA ...
+    Done in 0.0 sec
+  Variance: PC1:12.1% PC2:10.6% PC3:8.6% PC4:6.8% PC5:5.7% | Cum(1+2):22.7%
+  Saved: output/pca_sector_profiles.png
+
+== 5. PREDICTION — IMPROVED ENSEMBLE ==
+
+>>> Stratified train/val/test split by dominant sector...
+  Train: 522,126 | Val: 130,756 | Test: 163,875
+
+>>> Sector stickiness (empirical self-loop rates)...
+    Top 5 stickiest:
+      Operations & General Management            : 0.438
+      Education - Teaching                       : 0.429
+      Finance & Accounting                       : 0.392
+      Healthcare - Nursing & Allied              : 0.384
+      Engineering & Manufacturing                : 0.351
+
+>>> Global transition matrix ...
+    Done in 0.0 sec
+
+>>> Recency-weighted matrix (decay=0.12) ...
+    Done in 0.4 sec
+
+>>> Per-decade transition matrices ...
+
+------------------------------------------ 
+Years           | Sparsity   | Status
+------------------------------------------ 
+1958-1970       |     93.00% | Built
+1971-1980       |     38.82% | Built
+1981-1990       |     13.31% | Built
+1991-2000       |      5.08% | Built
+2001-2010       |      2.06% | Built
+2011-2020       |      3.57% | Built
+2023-2024       |     55.97% | Built
+    Done in 0.2 sec
+
+  Market drift:
+    1971-1980       : 1.6993
+    1981-1990       : 1.1075
+    1991-2000       : 0.5647
+    2001-2010       : 0.3460
+    2011-2020       : 0.3424
+    2023-2024       : 1.0876
+
+>>> 2nd-order Markov with back-off ...
+    Bigram pairs: 358,740
+    Back-off (<5 obs): 32
+    Done in 1.5 sec
+
+>>> [FIX 1] Building vectorised user history priors (keyed by person_id)...
+    Computing history vectors per user...
+    History vectors built for 1,367 users
+
+>>> University boost vectors...
+    Top 5 boosted for uni users:
+      Research & Academia                        : 1.924
+      Data Science & Analytics                   : 1.879
+      Social Work & Community Services           : 1.717
+      Marketing & Communications                 : 1.640
+      Education - Teaching                       : 1.541
+
+>>> User archetypes...
+    Archetype labels:
+   cluster         archetype mean_drift  mean_loop
+     <int>            <char>      <num>      <num>
+1:       2    Career Veteran   1.978000 0.42566185
+2:       3 Stable Specialist   1.857612 0.45839842
+3:       4   Career Switcher   3.170813 0.02159859
+4:       5     Gradual Mover   2.785580 0.16429314
+5:       1   Sector Loyalist   0.793833 0.91418706
+
+>>> Per-archetype matrices ...
+    Career Veteran           : 104716
+    Stable Specialist        : 154173
+    Career Switcher          : 92167
+    Gradual Mover            : 120640
+    Sector Loyalist          : 50430
+    Done in 0.2 sec
+
+>>> Tuning per-sector ensemble weights on validation set...
+  w_hist dist: 22 | 2 | 3
+  w_so dist  : 12 | 2 | 13
+  w_arch dist: 22 | 1 | 4
+
+  Persistence Baseline Top-1: 33.58%
+
+>>> Full ensemble model accuracy ...
+    Done in 37.2 sec
+
+============================================================ 
+  Model                  | Top-1    | Top-3    | Top-5   
+------------------------------------------------------------ 
+  Persistence Baseline   |   33.58% |      NA  |      NA
+  Ensemble (pred11)      |   35.39% |   63.29% |   75.06%
+------------------------------------------------------------ 
+  Ensemble vs Baseline : +1.81%
+============================================================ 
+
+== 6. CLUSTERING ==
+
+
+>>> Career drift scores ...
+    Done in 2.4 sec
+  Users: 194,787 | Median drift: 2.2818
+
+>>> k-means (k=5) ...
+    Done in 4.5 sec
+  WCSS:153509.77 | Between-SS:430848.23 | Quality:0.737
+   cluster n_users mean_drift mean_len mean_loop
+     <int>   <int>      <num>    <num>     <num>
+1:       1   55428      3.172      3.6     0.022
+2:       2   57637      1.860      4.1     0.459
+3:       3   24712      0.793      4.2     0.915
+4:       4   20711      1.975      8.9     0.427
+5:       5   36299      2.784      6.2     0.164
+
+  Archetype labels:
+   cluster         archetype n_users mean_drift mean_loop
+     <int>            <char>   <int>      <num>     <num>
+1:       1   Career Switcher   55428      3.172     0.022
+2:       2 Stable Specialist   57637      1.860     0.459
+3:       3   Sector Loyalist   24712      0.793     0.915
+4:       4    Career Veteran   20711      1.975     0.427
+5:       5     Gradual Mover   36299      2.784     0.164
+  Saved: output/user_clusters.png
+  Saved: output/cluster_sector_breakdown.png
+
+  TOP 10 HIGHEST DRIFT RISK:
+Key: <person_id>
+    person_id drift_score total_transitions
+        <int>       <num>             <int>
+ 1:         0   3.1258499                 9
+ 2:         1   2.7070389                 3
+ 3:         2   3.5120012                 2
+ 4:         9   1.2975811                 9
+ 5:        12   2.8214920                 4
+ 6:        15   2.0401795                 3
+ 7:        16   1.7719291                 3
+ 8:        19   1.3286154                 6
+ 9:        20   0.6453551                 4
+10:        26   1.9791681                 2
+  Saved: output/drift_risk_scores.csv
+
+== 7. ASSOCIATION RULES ==
+
+
+>>> Computing support, confidence, lift ...
+    Done in 0.1 sec
+  Total rules: 725
+
+  TOP 15 RULES BY LIFT:
+                                from                               to support confidence     lift count
+                              <char>                           <char>   <num>      <num>    <num> <int>
+ 1:      Senior Management & C-Suite      Senior Management & C-Suite  0.0000     0.0819 133.7617    33
+ 2:         Data Science & Analytics         Data Science & Analytics  0.0002     0.0894  43.8908   131
+ 3:     IT Infrastructure & Networks     IT Infrastructure & Networks  0.0004     0.1402  42.0939   359
+ 4:               Legal & Compliance               Legal & Compliance  0.0008     0.1759  35.8147   646
+ 5:              Research & Academia              Research & Academia  0.0007     0.1539  32.6630   596
+ 6:            Healthcare - Clinical            Healthcare - Clinical  0.0009     0.1573  25.0592   756
+ 7:       Cybersecurity & Compliance       Cybersecurity & Compliance  0.0006     0.1303  24.7611   513
+ 8:      ICT Management & Consulting      ICT Management & Consulting  0.0016     0.2045  23.6553  1335
+ 9:        Software & IT Development        Software & IT Development  0.0026     0.2554  23.3760  2149
+10: Social Work & Community Services Social Work & Community Services  0.0012     0.1706  22.9996   949
+11:             Finance & Accounting             Finance & Accounting  0.0085     0.3955  17.3040  6913
+12:     Banking, Finance & Insurance     Banking, Finance & Insurance  0.0014     0.1524  16.2092  1139
+13:     IT Infrastructure & Networks      ICT Management & Consulting  0.0004     0.1223  14.1427   313
+14:      ICT Management & Consulting     IT Infrastructure & Networks  0.0004     0.0466  13.9784   304
+15:         Creative, Media & Design         Creative, Media & Design  0.0051     0.2420  13.3793  4165
+
+  TOP 15 RULES BY CONFIDENCE:
+                               from                              to support confidence    lift  count
+                             <char>                          <char>   <num>      <num>   <num>  <int>
+ 1: Operations & General Management Operations & General Management  0.1348     0.4381  1.4384 110128
+ 2:            Education - Teaching            Education - Teaching  0.0423     0.4326  4.3485  34534
+ 3:            Finance & Accounting            Finance & Accounting  0.0085     0.3955 17.3040   6913
+ 4:   Healthcare - Nursing & Allied   Healthcare - Nursing & Allied  0.0156     0.3841  9.0691  12743
+ 5:     Engineering & Manufacturing     Engineering & Manufacturing  0.0338     0.3495  3.7751  27637
+ 6:      Customer Service & Support Operations & General Management  0.0042     0.3399  1.1160   3468
+ 7:  Public Sector & Administration Operations & General Management  0.0101     0.3358  1.1024   8221
+ 8:    Sales & Business Development    Sales & Business Development  0.0081     0.3260 11.5004   6628
+ 9:    Retail, Hospitality & Events Operations & General Management  0.0363     0.3184  1.0455  29615
+10:     Senior Management & C-Suite Operations & General Management  0.0002     0.3151  1.0347    127
+11:              Legal & Compliance Operations & General Management  0.0013     0.2928  0.9612   1075
+12:    Retail, Hospitality & Events    Retail, Hospitality & Events  0.0329     0.2887  2.8028  26852
+13:        Supply Chain & Logistics Operations & General Management  0.0211     0.2763  0.9071  17244
+14:        Supply Chain & Logistics        Supply Chain & Logistics  0.0205     0.2685  3.3902  16757
+15:  Project & Programme Management Operations & General Management  0.0042     0.2685  0.8816   3464
+
+  TOP 15 RULES BY SUPPORT:
+                               from                              to support confidence   lift  count
+                             <char>                          <char>   <num>      <num>  <num>  <int>
+ 1: Operations & General Management Operations & General Management  0.1348     0.4381 1.4384 110128
+ 2:            Education - Teaching            Education - Teaching  0.0423     0.4326 4.3485  34534
+ 3:    Retail, Hospitality & Events Operations & General Management  0.0363     0.3184 1.0455  29615
+ 4:     Engineering & Manufacturing     Engineering & Manufacturing  0.0338     0.3495 3.7751  27637
+ 5: Operations & General Management    Retail, Hospitality & Events  0.0332     0.1080 1.0480  27138
+ 6:    Retail, Hospitality & Events    Retail, Hospitality & Events  0.0329     0.2887 2.8028  26852
+ 7: Operations & General Management        Supply Chain & Logistics  0.0224     0.0727 0.9178  18272
+ 8:     Engineering & Manufacturing Operations & General Management  0.0219     0.2261 0.7422  17877
+ 9:        Supply Chain & Logistics Operations & General Management  0.0211     0.2763 0.9071  17244
+10:        Supply Chain & Logistics        Supply Chain & Logistics  0.0205     0.2685 3.3902  16757
+11: Operations & General Management     Engineering & Manufacturing  0.0204     0.0663 0.7161  16664
+12: Operations & General Management            Education - Teaching  0.0189     0.0615 0.6183  15463
+13:            Education - Teaching Operations & General Management  0.0186     0.1907 0.6260  15219
+14:   Healthcare - Nursing & Allied   Healthcare - Nursing & Allied  0.0156     0.3841 9.0691  12743
+15: Operations & General Management  Public Sector & Administration  0.0102     0.0332 1.1038   8353
+  Saved: output/association_rules.csv
+  Saved: output/association_rules_lift.png
+
+== 8. VISUALIZATION ==
+
+  Saved: output/sector_distribution.png
+  Saved: output/career_drift_distribution.png
+  Saved: output/top_transitions.png
+  Saved: output/accuracy_comparison.png
+  Saved: output/transition_heatmap.png
+  Saved: output/market_drift.png
+
+== FINAL SUMMARY ==
+============================================================ 
+  Persistence Baseline   Top-1: 33.58%
+  Ensemble (pred11)      Top-1: 35.39%  Top-3: 63.29%  Top-5: 75.06%
+------------------------------------------------------------ 
+  Ensemble vs Baseline : +1.81%
+============================================================ 
+  Changes in pred11 vs pred10:
+  [FIX 1] User history prior lookup was BROKEN in pred10 — used
+          (person_id, year) key but test years never matched train.
+          Now keyed by person_id only. Signal now actually works.
+  [FIX 2] Sector-conditional weight defaults: sticky sectors get
+          higher w_hist, mobile sectors get higher w_so.
+  [FIX 3] Recency-weighted history: recent jobs weighted more (decay=0.15).
+  [FIX 4] Extended w_hist grid up to 0.50 (was 0.30).
+  [FIX 5] Accuracy chart shows Ensemble only (as requested).
+============================================================ 
+  - sector_distribution.png
+  - sequence_length_distribution.png
+  - pca_sector_profiles.png
+  - market_drift.png
+  - career_drift_distribution.png
+  - top_transitions.png
+  - accuracy_comparison.png
+  - transition_heatmap.png
+  - user_clusters.png
+  - cluster_sector_breakdown.png
+  - association_rules_lift.png
+  - drift_risk_scores.csv
+  - association_rules.csv
+> 
