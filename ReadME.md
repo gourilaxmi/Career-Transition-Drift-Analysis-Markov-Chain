@@ -186,7 +186,7 @@ This helped identify:
 
 ### 4. Cross-Sector Transition Rules by Lift
 
-<img src="results/figures/top_lift_transitions.png" width="850"/>
+<img src="results/figures/association_rules_lift.png" width="850"/>
 
 ### 5. Career Drift Distribution
 
@@ -211,6 +211,9 @@ This helped identify:
 ### 10. Top Sectors per Career Cluster
 
 <img src="results/figures/cluster_sector_breakdown.png" width="850"/>
+### 11. Accuracy Comparison
+
+<img src="results/figures/accuracy_comparison.png" width="850"/>
 
 ---
 
